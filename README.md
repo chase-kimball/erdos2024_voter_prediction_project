@@ -1,7 +1,7 @@
 # Erdos2024 Voter Prediction Project
 
 ## 1. Dataset Identification:
-The dataset you will be working with includes the following components:
+The dataset we will be working with includes the following components:
 - **Polling Site Accessibility Data**: This includes geographic information about polling sites and travel times. This data is used to compute persistent homology and generate 1D death values representing coverage gaps.
 - **Voter Turnout Data**: Voter turnout rates by precinct, sourced from datasets like the MIT Election Data Science Lab or Harvard Dataverse.
 - **Demographic Data**: Data from the American Community Survey (ACS) and State Voter Registration Files, which provides information on the voter-eligible population (VEP), socioeconomic factors, and voter registration details.
