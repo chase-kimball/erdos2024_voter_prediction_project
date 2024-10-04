@@ -2,7 +2,7 @@
 
 ## Organization
 
-The project_data folder contains a folder for each city in the persistent homology study.
+The [project_data](../project_data) folder contains a folder for each city in the persistent homology study.
 Since we have a lot of data in this repo and we only need some of it, I suggest we 
 collect the important bits here
 
