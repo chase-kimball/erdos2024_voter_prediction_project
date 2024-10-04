@@ -6,7 +6,7 @@ This is the basic data for the paper result:
 Triangles corresponding to the resource holes, given by lon/lat pairs for each vertex, 
 and then the death filtration value, zscore of that value, and the ratio of the death to birth filtration value. 
 The triangles are stored as Shapely Polygon objects. Have extracted into csv the vertex coords, the centroid coords, 
-and stored everything in a data frame
+and resource hole stats
 
 ### PRESIDENT_precinct_general.csv
 
