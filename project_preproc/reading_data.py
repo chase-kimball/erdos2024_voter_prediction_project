@@ -42,7 +42,7 @@ def get_raw_simplex_gpd(filename='../project_data/chc/chc_death_simplices_by_dea
     return dsimps_gpd
 
 #Creates another GeoDataFrame, this time for the polling locations in Chicago
-def get_raw_polls_gpd(filename = '../project_data/chc/Polling_Places_Chicago_2016.csv'):
+def get_raw_polls_gpd(filename = '../project_data/processed_data/Polling_Places_Chicago_2016.csv'):
 
     polls = pd.read_csv(filename)
     polls_gpd = gpd.GeoDataFrame()
@@ -103,7 +103,7 @@ def append_intersecting_simplex_data_to_precinct(precs,dsimps_filename = '../pro
     return precs
 
 #Adds locations of physical polling locations to the precints dataframe
-def append_polls_to_precinct(precs, polls_filename = '../project_data/chc/Polling_Places_Chicago_2016.csv'):
+def append_polls_to_precinct(precs, polls_filename = '../project_data/processed_data/Polling_Places_Chicago_2016.csv'):
     
     polls = get_raw_polls_gpd(polls_filename)
     precs = precs.join(polls)
@@ -193,7 +193,7 @@ def index_str_to_list(s):
 #Note: An assumption was made that every statistic has uniform distribution in ever census tract.
     #That is, we assumed that the population densitity of a census tract is perfectly uniform.
     #Thus if 20% of a census lies within the precint, 20% of the people in that tract live within that precint.
-def average_census_blocks(indices, prec, census_gpd, stat_name):
+def average_census_blocks(indices, prec, census_gpd, stat_name, population_column):
     prec_area = prec.geometry.area
     total_area = 0
     cum_stat = 0
@@ -207,9 +207,9 @@ def average_census_blocks(indices, prec, census_gpd, stat_name):
         int_area = intersection(prec.geometry,tract.geometry).area
         frac_tract = int_area/tract_area
 
-        #Finds the estimated population of the tract living in the precint.
+        #Finds the estimated population relevant to the statistic of interest of the tract living in the precint
         #Since these are estimates, fractional amounts of people may live in the overlap.
-        intersection_population = tract.total_population * frac_tract
+        intersection_population = tract[population_column] * frac_tract
         stat = tract[stat_name]
 
         #Some tracts have NaN values from cleaning. Since Python consideres int + NaN = NaN, this code was introduced to prevent a cascading NaN issue.
@@ -236,7 +236,7 @@ def average_census_blocks(indices, prec, census_gpd, stat_name):
 
 #While 'average_census_blocks' works on a single precint, this function loops over all precints
 #calls 'average_census_blocks' and adds the data to the dataframe.
-def add_census_stat(precs, census_gpd, stat_name):
+def add_census_stat(precs, census_gpd, stat_name, population_column):
     
     stats = []
     area_fracs = []
@@ -245,13 +245,13 @@ def add_census_stat(precs, census_gpd, stat_name):
     #Loops over all precints
     for ii, prec in precs.iterrows():
         indices = index_str_to_list(prec.census_indices)
-        stat, total_pop, area_frac = average_census_blocks(indices, prec, cen, stat_name)
+        stat, total_pop, area_frac = average_census_blocks(indices, prec, census_gpd, stat_name, population_column)
         
         stats.append(stat)
         area_fracs.append(area_frac)
         total_populations.append(total_pop)
 
-    if not 'total_population_cen' in precs.columns:
+    if not 'total_population_cen' in precs.columns and population_column  == 'total_population':
         precs['total_population_cen'] = total_populations
         precs['frac_area_cen'] = area_fracs
     precs['{}_cen'.format(stat_name)] = stats 
