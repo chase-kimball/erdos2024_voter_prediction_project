@@ -52,7 +52,7 @@ The dataset is composed of three primary components:
    - As such, we did our models based on total population. While this will certainly have an impact on our data, our hope is that the impact is roughly equal across all precints, and that in comparing them, the effect will be nullified. The only precint where this assumption likely does not hold is home to the Cook County Correctional Facilities, which has an exceptionally large inmate population. We left it in our analysis, but better voter eligible data would likely have an impact on that precinct.
 
 ## 5. Analysis
-- Average voter turnout for Chicago was roughly %71. This was used as our baseline model. The baseline model had an RMSE of about 10%
+- Average voter turnout for Chicago was roughly %71. This was used as our baseline model. The baseline model had an RMSE of about 9.5%
 - Linear Regression
 - Logistic Regression
 - XGBoost
