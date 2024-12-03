@@ -33,10 +33,11 @@ While this document provides an overview, we point the reader to our notebooks f
 - Polling Site Access: Measured as average travel time or distance to the nearest polling site.
 
 ## 3. Dataset Identification:
-The dataset we will be working with includes the following components:
-- **Polling Site Accessibility Data**: This includes geographic information about polling sites and travel times. This data is used to calculate the expected time cost of voting.
-- **Voter Turnout Data**: Voter turnout rates by precinct, sourced from datasets like the MIT Election Data Science Lab or State Boards of Elections.
-- **Demographic Data**: Data from the US Census Bureau, which provides information on the population, including socioeconomic factors.
+Our data is sourced from a variety of public sources:
+- **Census Data**: This includes statistics on the level of education, age, race, income level, home-to-work transit method, and employment from the [Census Bureau](https://data.census.gov/table)
+- **Voter Turnout Data**: Voter turnout rates in the 2016 general election by precinct, sourced from the [Illinois Board of Elections](https://www.elections.il.gov/electionoperations/ElectionVoteTotalsPrecinct.aspx?ID=bt7bri46n7I%3d)
+- **Precinct Maps**: Boundaries of the 2069 precincts that compose the City of Chicago under the 2012-2022 districting. In 2022 the City was redistricted, reducing the number of precincts greatly. This data was sourced from the [City directly](https://data.cityofchicago.org/Facilities-Geographic-Boundaries/Boundaries-Ward-Precincts-2012-2022-/uvpq-qeeq)
+- **Polling locations**
 
 ## 4. Dataset Description and Problem Statement:
 ### Dataset Description:
