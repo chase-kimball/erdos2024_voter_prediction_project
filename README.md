@@ -14,7 +14,7 @@ While this document provides an overview, we point the reader to our notebooks f
 - Our main analysis on the processed and cleaned data can be found in [analysis.ipynb](./project_analysis/analysis.ipynb)
 - Our significant data processing can be found in [project_preproc/](./project_preproc)
   - [preproc_1_census_data_chicago.py](./project_preproc/preproc_1_census_data_chicago.py) pulls down and processes census data for the City of Chicago from the 2010 census
-  - [preproc_2_voting_turnout.py](./project_preprocpreproc_2_voting_turnout.py) processes precinct returns for the City of Chicago and computes a voter turnout percentage
+  - [preproc_2_voting_turnout.py](./project_preproc/preproc_2_voting_turnout.py) processes precinct returns for the City of Chicago and computes a voter turnout percentage
   - [preproc_3_combining_with_precinct_data.py](./project_preproc/preproc_3_combining_with_precinct_data.py) combines all of the above with the geographical precinct data, converts census tract-wise statistics into precinct-wise form, and pulls transit times to polling centers from the googlemaps API
   - [reading_data.py](./project_preproc) contains utility functions used in the last script
   - [EDA_0.ipynb](./project_preproc/EDA_0.ipynb) contains old and eventually unused analyses from back when the project had a different direction and was focused on [this paper](https://news.ycombinator.com/item?id=39831002) on using persistent cohomology to identify regions with low access to polling locations
