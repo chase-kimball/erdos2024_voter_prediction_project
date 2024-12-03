@@ -6,7 +6,7 @@ By: Avi Steiner, Chase Kimball, Davis Stagliano
 We also acknowledge early efforts of Brian Hepler on voter turnout before he left the program.
 
 ## Problem Statement:
-The problem being explored is to use demographic and geographic data to predict voter turnout, in order to see what variables are indicators of poor voter turnout.
+The problem being explored is to use demographic and geographic data to predict voter turnout, in order to see what variables are indicators of voting access and activity.
 ## Summary
 We restricted our analysis to just the city of Chicago, and pulled demographic data from the US Census Bureau, voting data from the Illinois Board of Elections, geographical precinct data from the City of Chicago, polling station data from the Center for Public Integrity, and transit times from the Google Maps API. Our baseline model was a simple average of voter turnout across precincts in our training set. The vast amount of our time and effort was spent on sourcing, cleaning, and engineering data. For our analysis, we compared linear and logistic regressions, as well as an XGBoostRegressor ensemble method. Although the logistic and linear regression models perform similarly (and both outperform XGBoost), the logistic model is "philosophically" better. In particular, it reflects the nature of the problem (i.e. how probable is it that a person in a precinct will vote), and it prevents us from predicting voter turnout percentages >100% or <0%. Our results also indicate that features like level of educational attainment and income are the most important in predicting voter turnout, as opposed to polling accessibility.
 
