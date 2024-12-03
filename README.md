@@ -2,26 +2,33 @@
 Voting Time vs. Voter Turnout
 
 By: Avi Steiner, Chase Kimball, Davis Stagliano
-## Summary
-We restricted our analysis to just the city of Chicago, and pulled demographic data from the US Census Bureau. Our baseline model was a simple average of voter turnout. Against that, we compared linear and logistic regressions, as well as an XGBoost tree. The regressions performed better than the tree, by about 3%. Since the data is not purely linear, we believe the logistic model is best. Our results indicate low correlation between voting time and voter turnout.
 
 ## Problem Statement:
 The problem being explored is whether gaps in polling site accessibility correlate with voter turnout. Specifically, the goal is to determine if areas with longer times to vote also exhibit lower voter turnout. This problem is critical because gaps in polling site coverage could be contributing to voter disenfranchisement, particularly in underserved areas.
 By identifying these relationships, this study aims to provide insights into how geographic accessibility issues impact democratic participation. The findings could inform policymakers about how to optimize polling site distribution to improve voter access and increase turnout, potentially reducing civic engagement disparities.
+## Summary
+We restricted our analysis to just the city of Chicago, and pulled demographic data from the US Census Bureau, voting data from the Illinois Board of Elections, geographical precinct data from the City of Chicago, polling station data from the Center for Public Integrity, and transit times from the Google Maps API. Our baseline model was a simple average of voter turnout across precincts in our training set. The vast amount of our time and effort was spent on sourcing, cleaning, and engineering data. For our analysis, we compared linear and logistic regressions, as well as an XGBoostRegressor ensemble method. Although the logistic and linear regression models perform similarly (and both outperform XGBoost), the logistic model is "philosophically" better. In particular, it reflects the nature of the problem (i.e. how probable is it that a person in a precinct will vote), and it prevents us from predicting voter turnout percentages >100% or <0%. Our results also indicate that features like level of educational attainment and income are the most important in predicting voter turnout, as opposed to polling accessibility.
+
+While this document provides an overview, we point the reader to our notebooks for more detail. In particular:
+- Our main analysis on the processed and cleaned data can be found in [analysis.ipynb](./project_analysis/analysis.ipynb)
+- Our significant data processing can be found in [project_preproc/](./project_preproc)
+  - [preproc_1_census_data_chicago.py](./project_preproc/preproc_1_census_data_chicago.py) pulls down and processes census data for the City of Chicago from the 2010 census
+  - [preproc_2_voting_turnout.py](./project_preprocpreproc_2_voting_turnout.py) processes precinct returns for the City of Chicago and computes a voter turnout percentage
+  - [preproc_3_combining_with_precinct_data.py](./project_preproc/preproc_3_combining_with_precinct_data.py) combines all of the above with the geographical precinct data, converts census tract-wise statistics into precinct-wise form, and pulls transit times to polling centers from the googlemaps API
+  - [reading_data.py](./project_preproc) contains utility functions used in the last script
+    
 
 ## 1. Potential Stakeholders
-- **Election Authorities and Government Agencies**: Local election boards, state/federal commissions, and voter outreach offices interested in optimizing polling site distribution for fairer access.
+- **Election Authorities and Government Agencies**: Local election boards, state/federal commissions, and voter outreach offices interested in optimizing voter turnout.
 - **Policymakers and Legislators**: City officials and state legislators focused on shaping policies to improve voter access and turnout.
 - **Civil Rights and Advocacy Organizations**: Groups like the ACLU and NGOs advocating for voting rights, aiming to address disparities in voter access.
 - **Community Leaders and Activists**: Grassroots activists and civic organizations focused on voter mobilization in underserved areas.
 - **Academic and Research Institutions**: Researchers and think tanks studying voting behavior and policy solutions related to voter access.
-- **Technology and Data Providers**: Geospatial analytics firms and election technology providers interested in leveraging data to improve voter accessibility.
-- **Voters and Communities**: Underserved communities and voters who face challenges accessing polling sites and would benefit directly from improved access.
+
 
 ## 2. Key Performance Indicators (KPIs):
-- Average Voter Turnout per precinct.
-- Correlation Coefficient between travel time to voting locations and voter turnout.
-- Correlation Coefficient between known demographic indicators and voter turnout.
+- Root mean-squared error for predicted average voter turnout per precinct.
+- F-scores to identify variables useful in predicting voter turnout
 - Geographic Distribution of Voter Turnout: Visualization of turnout rates relative to polling site coverage.
 - Polling Site Access: Measured as average travel time or distance to the nearest polling site.
 
@@ -40,26 +47,23 @@ The dataset is composed of three primary components:
 
 ### Discussion of Dataset Issues:
 1. The data from the Census had multiple missing or invalid fields.
-   - For average household income, if the variance of the data for the tract was larger than the average of the tract, roughly -$6,000,000 was entered instead. We resolved this by treating the field as empty, and skipped over it during our anlysis.
-   - Missing data in the census was entered as NaN into the dataframe. When we attempted to sum over large numbers of tracts, a single NaN field for any tract in a precinct resulted in a NaN for the whole precinct. We solved this by treating NaNs as 0.
-   - Treating NaN fields as zero reduced the number of precincts with invalid results down to two. To avoid any issues resulting from their inclusion, we opted to wholly remove the two precincts from the analysis.
+   - For average household income, if the variance of the data for the tract was larger than the average of the tract, roughly -$6,000,000 was entered instead. We resolved this by cleaning these rows from our data set
+   - In total, only a handful of the 2000+ precincts exclusively overlapped with census tracts with missing data. Those that overlapped with a mix of tracts with and without data had their demographics inferred from only those tracts with data.
 2. The formatting of the Census was far too granular.
    - While a few, important, data fields were collated into a total number, most were left in extremely granular forms. For example, there is no topline result for the number of people in a tract with a bachelor’s degree. That data is only available broken down first by sex and then by age. Finding the total number of bachelor’s degrees in a tract required summing over ten non-consecutive fields. This had to be repeated for every education level reported in the census.
-3. There is no information on the population distribution within a tract.
-   - Because census tracts are based on geographic features, and voting precincts are based on population, most tracts overlapped more than one precinct. We thus needed to split the populations of each tract between their overlapping precincts.
-   - Without more detailed data on the population spread within a tract, we made the assumption that, for every metric, every census tract is evenly distributed. This allowed us to split data from the tracts into their respective precincts by percentage of overlap. That is, if 20% of a tract lies within a precinct, 20% of every data field for that tract lies within that precinct.
+3. Census data is reported by Census tract, which is a different partition of Chicago than the precincts which report voting results
+   - We opted to perform a population-based weighting scheme. This is done by finding the intersection of each precinct with each census tract, assuming each census tract is of constant population density, and then getting a population-weighted average of each statistic across the tract intersections that make up each precinct.  
 4. Finding exact data on the eligible voting population, especially broken down enough to be of use, was not feasible in our timeframe.
    - As such, we did our models based on total population. While this will certainly have an impact on our data, our hope is that the impact is roughly equal across all precints, and that in comparing them, the effect will be nullified. The only precint where this assumption likely does not hold is home to the Cook County Correctional Facilities, which has an exceptionally large inmate population. We left it in our analysis, but better voter eligible data would likely have an impact on that precinct.
 
 ## 5. Analysis
-- Average voter turnout for Chicago was roughly %71. This was used as our baseline model. The baseline model had an RMSE of about 9.5%
+- Average voter turnout for Chicago in our training set was roughly 71%. This was used as our baseline model. The baseline model had an RMSE of about 9.5%
 - Linear Regression
 - Logistic Regression
 - XGBoost
 
 ## 6. Conclusion and Next Steps
-Comparing to our baseline, we found the linear and logistic regressions improved the RMSE by about 45%. The XGBoost tree only improved the RMSE by 42%. Given that the data is clearly not of a purely linear nature, the logistic model is the best fit.
-While the regressions were better models, all agreed on which factors were the most important, namely education, followed by income. While racial identity had some correlation, it was varied, and travel time to vote had small coefficients all around.
-To answer our initial question, it appears that, for our data, voting time does not have a significant impact on voter turnout.
+Comparing to our baseline, we found the linear and logistic regressions improved the RMSE by about 45%. The XGBoost tree only improved the RMSE by 42%.
+All models agreed on which factors were the most important, namely level of education, followed by income, with populations with higher degrees of education and more income having higher voter turnout. While racial identity had some correlation, it was varied, and travel time to vote had small coefficients all around.
 
 The next step would be to expand the model into other major cities for the 2016 election, and then to compare with the 2024 election, once that data is available. Other cities, such as LA and NYC, with know and serious traffic problems, might yield different results. It is entirely possible the relationship between voting time and turnout depends on the city. Additionally, since the pandemic changed how people can and do vote, it is possible that travel time is even less important now in 2024, correlating with the rise in mail in voting options.
