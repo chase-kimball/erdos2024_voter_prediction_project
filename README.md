@@ -3,6 +3,8 @@ Voting Time vs. Voter Turnout
 
 By: Avi Steiner, Chase Kimball, Davis Stagliano
 
+We also acknowledge early efforts of Brian Hepler on voter turnout before he left the program.
+
 ## Problem Statement:
 The problem being explored is to use demographic and geographic data to predict voter turnout, in order to see what variables are indicators of poor voter turnout.
 ## Summary
@@ -15,6 +17,8 @@ While this document provides an overview, we point the reader to our notebooks f
   - [preproc_2_voting_turnout.py](./project_preprocpreproc_2_voting_turnout.py) processes precinct returns for the City of Chicago and computes a voter turnout percentage
   - [preproc_3_combining_with_precinct_data.py](./project_preproc/preproc_3_combining_with_precinct_data.py) combines all of the above with the geographical precinct data, converts census tract-wise statistics into precinct-wise form, and pulls transit times to polling centers from the googlemaps API
   - [reading_data.py](./project_preproc) contains utility functions used in the last script
+  - [EDA_0.ipynb](./project_preproc/EDA_0.ipynb) contains old and eventually unused analyses from back when the project had a different direction and was focused on [this paper](https://news.ycombinator.com/item?id=39831002) on using persistent cohomology to identify regions with low access to polling locations
+  - [EDA.ipynb](./project_preproc/EDA.ipynb) contains vital data exploration we did. There you can find demonstrations of our population averaging scheme, initial plots of census tract data, and a confirmation from using a secondary source that anomylous precinct returns (above 100%) were actually in the data. Note that it is expected that this is due to same-day voter registration. Given the timing of the project (2024 elections) we did not hear back from the Chicago Board of Elections about our inquiry into the matter.
     
 
 ## 1. Potential Stakeholders
@@ -55,8 +59,14 @@ The dataset is composed of three primary components:
    - We opted to perform a population-based weighting scheme. This is done by finding the intersection of each precinct with each census tract, assuming each census tract is of constant population density, and then getting a population-weighted average of each statistic across the tract intersections that make up each precinct.  
 4. Finding exact data on the eligible voting population, especially broken down enough to be of use, was not feasible in our timeframe.
    - As such, we did our models based on total population. While this will certainly have an impact on our data, our hope is that the impact is roughly equal across all precints, and that in comparing them, the effect will be nullified. The only precint where this assumption likely does not hold is home to the Cook County Correctional Facilities, which has an exceptionally large inmate population. We left it in our analysis, but better voter eligible data would likely have an impact on that precinct.
+5. Some precincts reported above 100% turnout. It is expected that this is due to same-day voter registration. Given the timing of the project (2024 elections) we did not hear back from the Chicago Board of Elections about our inquiry into the matter. See [EDA.ipynb](./project_preproc/EDA.ipynb) for a confirmation that the anomaly is really in the data by computing it from a second source.
+    
 
 ## 5. Analysis
+
+We ran the following models, did hyperparameter tuning, compared against baselines, and explored feature importance. Please seee our [analysis notebook](./project_analysis/analysis.ipynb) for details. 
+Please also see [EDA_0.ipynb](./project_preproc/EDA_0.ipynb) and [EDA.ipynb](./project_preproc/EDA.ipynb) for additional preliminary data exploration.
+
 - Average voter turnout for Chicago in our training set was roughly 71%. This was used as our baseline model. The baseline model had an RMSE of about 9.5%
 - Linear Regression
 - Logistic Regression
